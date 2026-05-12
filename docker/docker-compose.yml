@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: scada-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: Root@123
+      MYSQL_DATABASE: scada_db
+      MYSQL_USER: scada_user
+      MYSQL_PASSWORD: StrongPass123!
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      - mysql_data:/var/lib/mysql
+    networks:
+      - scada-net
+
+  backend:
+    image: elashrypublic/scada-backend:v1
+    container_name: scada-backend
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - "8001:8000"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: scada_db
+      DB_USERNAME: scada_user
+      DB_PASSWORD: StrongPass123!
+
+    networks:
+      - scada-net
+
+  frontend:
+    image: elashrypublic/scada-frontend:v1
+    container_name: scada-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8002:80"
+    networks:
+      - scada-net
+
+networks:
+  scada-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
