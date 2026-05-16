@@ -1,3 +1,7 @@
+# to build this docker image use this:
+# docker build --no-cache   -f docker/scada-frontend/Dockerfile   -t elashrypublic/scada-frontend:v1 .
+
+
 # Build Stage
 FROM node:20-alpine AS builder
 

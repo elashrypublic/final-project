@@ -249,7 +249,7 @@ const fetchData = async () => {
   }
   try {
     // const response = await fetch('/backend/data_third.php')
-    const response = await fetch('http://backend:8001/api/scada-data')
+    const response = await fetch('http://localhost:8001/api/scada-data')
     
     const data = await response.json()
     if (data) {

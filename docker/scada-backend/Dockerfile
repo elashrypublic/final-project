@@ -1,3 +1,6 @@
+# to build this docker image use this:
+
+
 FROM php:8.3-cli-alpine
 
 # System dependencies
