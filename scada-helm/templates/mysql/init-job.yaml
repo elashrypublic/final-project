@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-init-job
+  namespace: {{ .Values.namespace }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: mysql-import
+          image: {{ .Values.mysql.image }}
+          imagePullPolicy: Always
+
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for MySQL..."
+              until mysqladmin ping -h mysql -uroot -p$MYSQL_ROOT_PASSWORD --silent; do
+                sleep 5
+              done
+
+              echo "MySQL is ready. Importing SQL..."
+              mysql -h mysql -uroot -p$MYSQL_ROOT_PASSWORD $MYSQL_DATABASE < /init/scada_system.sql
+
+              echo "SQL import completed successfully."
+
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+
+            - name: MYSQL_DATABASE
+              value: {{ .Values.mysql.database | quote }}

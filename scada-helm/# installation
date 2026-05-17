@@ -1,0 +1,3 @@
+helm install scada scada-helm \
+  --namespace scada-system \
+  --create-namespace
