@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-init-job
+  namespace: scada-system
+spec:
+  backoffLimit: 3
+
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: mysql-import
+          image: elashrypublic/mysql:v1
+          imagePullPolicy: Always
+
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+
+              echo "Waiting for MySQL..."
+
+              until mysqladmin ping \
+                -h mysql \
+                -uroot \
+                -p$MYSQL_ROOT_PASSWORD \
+                --silent; do
+                  sleep 5
+              done
+
+              echo "MySQL is ready. Importing SQL..."
+
+              mysql \
+                -h mysql \
+                -uroot \
+                -p$MYSQL_ROOT_PASSWORD \
+                --max_allowed_packet=512M \
+                --connect-timeout=60 \
+                scada_db < /init/scada_system.sql
+
+              echo "SQL import completed successfully."
+
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
