@@ -1,0 +1,14 @@
+الاستخدام
+
+صلاحيات التنفيذ:
+
+chmod +x bootstrap.sh
+chmod +x cleanup.sh
+
+تشغيل:
+
+./bootstrap.sh
+
+Cleanup:
+
+./cleanup.sh
